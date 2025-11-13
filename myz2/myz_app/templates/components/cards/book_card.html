@@ -1,0 +1,99 @@
+{% load static %}
+<a href="{% url 'book_detail' book.pk %}" class="book-card-link">
+    <div class="book-card">
+        <div class="image-popular-books">
+            <img src="{{ book.image.url }}" alt="{{ book.bookName }}">
+        </div>
+        <div class="card-desc">
+            <h3 class="book-title">{{ book.bookName }}</h3>
+            <p class="book-author">{{ book.author }}</p>
+            <p class="book-genre">
+                {% for genre in book.genre.all %}
+                    {{ genre.genreName }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+            </p>
+            <p class="book-price">Цена: {{ book.price }} руб.</p>
+            <p class="book-quantity">Количество: {{ book.quantity }}</p>
+            <form action="#" method="POST" class="add-to-cart-form">
+                {% csrf_token %}
+                <button type="submit" class="add-to-cart-btn">Добавить в корзину</button>
+            </form>
+        </div>
+    </div>
+</a>
+
+<style>
+    .add-to-cart-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+    .add-to-cart-btn:hover {
+        background-color: #218838;
+    }
+    .book-card {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        height: auto;
+        margin: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        background-color: #fff;
+    }
+    .book-card:hover {
+        transform: translateY(-5px);
+    }
+    .image-popular-books {
+        flex: 0 0 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    .image-popular-books img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .card-desc {
+        padding: 15px;
+        text-align: center;
+    }
+    .book-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        color: #333;
+    }
+    .book-author {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 10px;
+    }
+    .book-genre {
+        font-size: 12px;
+        color: #888;
+    }
+    .book-price {
+        font-size: 16px;
+        color: #007bff;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+    .book-quantity {
+        font-size: 14px;
+        color: #555;
+        margin-top: 5px;
+    }
+    .book-card-link {
+        text-decoration: none;
+        color: inherit;
+    }
+</style>

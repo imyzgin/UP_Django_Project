@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/style.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    {% block title %}{% endblock %}
+</head>
+<body>
+    {% include "components/global/header.html" %}
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include "components/global/footer.html" %}
+</body>
+</html>
+
+<style>
+    html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: 'Roboto', sans-serif;
+        background-color: #f9f9f9;
+        color: #333;
+    }
+    a {
+        color: inherit;
+    }
+    .content {
+        padding: 20px;
+        min-height: calc(100vh - 120px); 
+    }
+</style>

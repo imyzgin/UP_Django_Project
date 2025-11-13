@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    <title>Каталог книг</title>
+{% endblock %}
+
+{% block content %}
+<section class="catalog-block">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Жанры</h2>
+        </div>
+        <form method="get" id="genre-filter-form">
+            {% if search_query %}
+                <input type="hidden" name="search" value="{{ search_query }}">
+            {% endif %}
+            
+            <div class="sidebar-list">
+                <ul>
+                    {% for genre in genres %}
+                        <li>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="genre" value="{{ genre.id }}" 
+                                       {% if genre.id in selected_genre_ids %}checked{% endif %}
+                                       onchange="this.form.submit()">
+                                {{ genre.genreName }}
+                            </label>
+                        </li>
+                    {% endfor %}
+                    <li>
+                        <a href="{% url 'catalog' %}{% if search_query %}?search={{ search_query }}{% endif %}" 
+                           class="reset-filter-btn">
+                            Сбросить фильтр жанров
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </form>
+    </div>
+    <div class="main-content">
+        <div class="main-header">
+            <h1>Каталог книг</h1>
+            
+            {% if search_query or selected_genre_ids %}
+                <div class="filter-info">
+                    {% if search_query %}
+                        <p>Результаты поиска по запросу: "<strong>{{ search_query }}</strong>"</p>
+                    {% endif %}
+                    {% if selected_genre_ids %}
+                        <p>Выбранные жанры: 
+                            {% for genre in genres %}
+                                {% if genre.id in selected_genre_ids %}
+                                    <span class="genre-tag">{{ genre.genreName }}</span>
+                                {% endif %}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
+                    <a href="{% url 'catalog' %}" class="clear-all">Сбросить все фильтры</a>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="book-cards">
+            {% for book in books %}
+                {% include "components/cards/book_card.html" with book=book %}
+            {% empty %}
+                <div class="no-results">
+                    <h3>Книги не найдены</h3>
+                    <p>Попробуйте изменить поисковый запрос или выбрать другие жанры.</p>
+                    <a href="{% url 'catalog' %}" class="btn-primary">Показать все книги</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+    .catalog-block {
+        display: flex;
+        padding: 20px;
+    }
+    .sidebar {
+        width: 20%;
+        background-color: #f4f4f4;
+        padding: 15px;
+    }
+    .sidebar-header {
+        margin-bottom: 15px;
+    }
+    .sidebar-list li {
+        margin-bottom: 8px;
+        list-style: none;
+    }
+    .checkbox-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 5px 0;
+    }
+    .checkbox-label input[type="checkbox"] {
+        margin-right: 8px;
+    }
+    .reset-filter-btn {
+        display: inline-block;
+        padding: 8px 12px;
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    .reset-filter-btn:hover {
+        background-color: #5a6268;
+        color: white;
+    }
+    .main-content {
+        width: 80%;
+        padding-left: 20px;
+    }
+    .main-header {
+        margin-bottom: 20px;
+    }
+    .filter-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border-left: 4px solid #00bcd4;
+    }
+    .genre-tag {
+        display: inline-block;
+        background-color: #00bcd4;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin: 2px;
+        font-size: 0.9rem;
+    }
+    .clear-all {
+        display: inline-block;
+        margin-top: 10px;
+        color: #dc3545;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    .clear-all:hover {
+        text-decoration: underline;
+    }
+    .book-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    .no-results {
+        text-align: center;
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        width: 100%;
+    }
+    .btn-primary {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #00bcd4;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        margin-top: 15px;
+    }
+    .btn-primary:hover {
+        background-color: #0097a7;
+    }
+</style>
+{% endblock %}

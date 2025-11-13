@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="popular-books">
+    <div class="title">
+        <h1>Популярные книги</h1>
+    </div>
+    <div class="book-cards">
+        {% for book in popular_books %}
+            {% include "components/cards/book_card.html" with book=book %}
+        {% endfor %}
+    </div>
+</section>
+{% comment %} <div class="about-cards">
+        {%include "components/cards/about_card.html"%}
+        {%include "components/cards/about_card.html"%}
+        {%include "components/cards/about_card.html"%}
+    </div> {% endcomment %}
+<section class="new-books-block">
+    <div class="title">
+        <h1>Новинки</h1>
+    </div>
+    <div class="book-cards">
+        {% for book in new_books %}
+            {% include "components/cards/book_card.html" with book=book %}
+        {% endfor %}
+    </div>
+</section>
+
+<style>
+    .popular-books, .new-books-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        background-color: #f9f9f9;
+    }
+    .book-cards {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+    .title {
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}

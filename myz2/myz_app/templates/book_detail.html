@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    <title>{{ book.bookName }}</title>
+{% endblock %}
+
+{% block content %}
+<section class="book-detail">
+    <div class="book-detail-container">
+        <div class="book-main-info">
+            <div class="book-image-section">
+                <div class="book-image">
+                    <img src="{{ book.image.url }}" alt="{{ book.bookName }}">
+                </div>
+            </div>
+            
+            <div class="book-info-card">
+                <div class="book-header">
+                    <h1 class="book-title">{{ book.bookName }}</h1>
+                    <p class="book-author">Автор: {{ book.author }}</p>
+                </div>
+                
+                <div class="book-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Год публикации:</span>
+                        <span class="meta-value">{{ book.yearOfPublication }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Издатель:</span>
+                        <span class="meta-value">{{ book.publisher }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Цена:</span>
+                        <span class="meta-value">{{ book.price }} руб.</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Количество:</span>
+                        <span class="meta-value">{{ book.quantity }}</span>
+                    </div>
+                </div>
+                
+                <div class="book-actions">
+                    <a href="{% url 'read_book' book.id %}" class="read-button">
+                        Читать книгу
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="book-additional-info">
+            <div class="book-description">
+                <h3>Описание</h3>
+                <div class="description-content">
+                    {{ book.desc|linebreaks }}
+                </div>
+            </div>
+            
+            <div class="book-genres">
+                <h3>Жанры</h3>
+                <div class="genres-list">
+                    {% for genre in book.genre.all %}
+                        <span class="genre-tag">{{ genre.genreName }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="reviews">
+    <h2>Отзывы</h2>
+    {% for review in book.review_set.all %}
+        <div class="review">
+            <p class="review-text">{{ review.reviewText }}</p>
+            <p class="review-author">Автор: {{ review.email }}</p>
+        </div>
+    {% empty %}
+        <p class="no-reviews">Пока нет отзывов.</p>
+    {% endfor %}
+</section>
+
+<style>
+    .book-detail {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .book-main-info {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 30px;
+        align-items: flex-start;
+    }
+    
+    
+    .book-image {
+        width: 300px;
+        height: 400px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .book-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    
+    .book-info-card {
+        flex: 1;
+        background: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        min-height: 400px;
+    }
+    
+    .book-header {
+        margin-bottom: 25px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 15px;
+    }
+    
+    .book-title {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+        margin: 0 0 10px 0;
+        line-height: 1.2;
+    }
+    
+    .book-author {
+        font-size: 18px;
+        color: #666;
+        margin: 0;
+    }
+    
+    .book-meta {
+        margin-bottom: 25px;
+    }
+    
+    .meta-item {
+        display: flex;
+        margin-bottom: 12px;
+        align-items: center;
+    }
+    
+    .meta-label {
+        font-weight: bold;
+        color: #555;
+        min-width: 150px;
+        margin-right: 10px;
+    }
+    
+    .meta-value {
+        color: #333;
+        font-size: 16px;
+    }
+    
+    .book-actions {
+        margin-top: 30px;
+    }
+    
+    .read-button {
+        display: inline-block;
+        padding: 15px 35px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        min-width: 200px;
+    }
+    
+    .read-button:hover {
+        background-color: #45a049;
+    }
+    
+    .book-additional-info {
+        background: #fff;
+        padding: 30px;
+        border-radius: 8px;
+    }
+    
+    .book-description {
+        margin-bottom: 30px;
+    }
+    
+    .book-description h3,
+    .book-genres h3 {
+        font-size: 20px;
+        color: #333;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #4CAF50;
+    }
+    
+    .description-content {
+        line-height: 1.6;
+        color: #555;
+        font-size: 16px;
+    }
+    
+    .genres-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .genre-tag {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #e8f5e8;
+        color: #2e7d32;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+        border: 1px solid #c8e6c9;
+    }
+    
+    .reviews {
+        margin-top: 40px;
+        padding: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+    }
+    
+    .reviews h2 {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        color: #333;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #4CAF50;
+    }
+    
+    .review {
+        margin-bottom: 25px;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 6px;
+        border-left: 4px solid #4CAF50;
+    }
+    
+    .review-text {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+        line-height: 1.5;
+    }
+    
+    .review-author {
+        font-size: 14px;
+        color: #777;
+        font-style: italic;
+    }
+    
+    .no-reviews {
+        text-align: center;
+        color: #888;
+        font-style: italic;
+        padding: 20px;
+    }
+{% endblock %}

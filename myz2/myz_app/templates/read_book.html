@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    <title>Чтение: {{ book.bookName }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="reading-container">
+    <div class="reading-header">
+        <div class="header-content">
+            <a href="{% url 'book_detail' book.id %}" class="back-button">Назад к описанию</a>
+            <h1>{{ book.bookName }}</h1>
+            <p class="author">Автор: {{ book.author.firstName }} {{ book.author.lastName }}</p>
+        </div>
+    </div>
+    
+    <div class="book-content">
+        {% if book.book_text %}
+        <div class="text-content-section">
+            <div class="text-content">
+                {{ book.book_text|linebreaks }}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if book.book_file %}
+        <div class="file-content-section">
+            <div class="file-actions">
+                <a href="{{ book.book_file.url }}" download class="download-btn">
+                    Скачать файл
+                </a>
+            </div>
+            
+            <div class="file-info">
+                <p>Формат файла: {{ book.book_file.name|slice:'-4:'|upper }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if not book.book_text and not book.book_file %}
+        <div class="no-content">
+            <div class="no-content-message">
+                <h3>Контент книги готовится</h3>
+                <p>Текст и файл книги будут доступны в ближайшее время.</p>
+                <p>А пока вы можете ознакомиться с описанием книги.</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .reading-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .reading-header {
+        background: #f5f5f5;
+        margin-bottom: 15px;
+        text-align: center;
+        border: 1px solid #ddd;
+        padding: 20px;
+    }
+    
+    .back-button {
+        display: inline-block;
+        padding: 8px 20px;
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+    
+    .back-button:hover {
+        background-color: #5a6268;
+        color: white;
+    }
+    
+    .text-content-section {
+        background: white;
+        padding: 20px;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .text-content {
+        line-height: 1.5;
+        font-size: 16px;
+        text-align: left;
+    }
+    
+    .file-content-section {
+        background: white;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .file-actions {
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    
+    .download-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+    
+    .download-btn:hover {
+        background-color: #0056b3;
+        color: white;
+    }
+    
+    .file-info {
+        padding: 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        text-align: center;
+    }
+    
+    .no-content {
+        text-align: center;
+        padding: 40px 20px;
+        background: white;
+        border: 1px solid #ddd;
+    }
+    
+    .no-content-message h3 {
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+    
+    .no-content-message p {
+        color: #6c757d;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
