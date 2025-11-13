@@ -6,6 +6,7 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 
 def render_main(request): 
@@ -60,3 +61,30 @@ def read_book(request, pk):
     }
     
     return render(request, 'read_book.html', data)
+
+def read_chapter(request, book_pk, chapter_number):
+    book = get_object_or_404(Book, pk=book_pk)
+    chapter = get_object_or_404(Chapter, book=book, chapter_number=chapter_number)
+    
+    previous_chapter = Chapter.objects.filter(
+        book=book, 
+        chapter_number__lt=chapter_number
+    ).order_by('-chapter_number').first()
+    
+    next_chapter = Chapter.objects.filter(
+        book=book, 
+        chapter_number__gt=chapter_number
+    ).order_by('chapter_number').first()
+    
+    all_chapters = Chapter.objects.filter(book=book).order_by('chapter_number')
+    
+    context = {
+        'book': book,
+        'chapter': chapter,
+        'previous_chapter': previous_chapter,
+        'next_chapter': next_chapter,
+        'all_chapters': all_chapters,
+        'current_chapter_number': chapter_number,
+    }
+    
+    return render(request, 'read_chapter.html', context)

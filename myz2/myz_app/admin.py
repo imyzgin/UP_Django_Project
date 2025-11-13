@@ -6,5 +6,6 @@ admin.site.register(Book)
 admin.site.register(Genre)
 admin.site.register(Review)
 admin.site.register(Publisher)
+admin.site.register(Chapter)
 
 # Register your models here.

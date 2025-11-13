@@ -38,12 +38,30 @@
                         <span class="meta-label">Количество:</span>
                         <span class="meta-value">{{ book.quantity }}</span>
                     </div>
+                    {% if book.book_file %}
+                    <div class="meta-item">
+                        <span class="meta-label">Формат файла:</span>
+                        <span class="meta-value">{{ book.book_file.name|slice:'-4:'|upper }}</span>
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <div class="book-actions">
-                    <a href="{% url 'read_book' book.id %}" class="read-button">
-                        Читать книгу
-                    </a>
+                    {% if book.chapters.exists %}
+                        <a href="{% url 'read_chapter' book.id book.get_first_chapter.chapter_number %}" class="read-button">
+                            Читать книгу онлайн
+                        </a>
+                    {% else %}
+                        <a href="{% url 'read_book' book.id %}" class="read-button">
+                            Читать книгу онлайн
+                        </a>
+                    {% endif %}
+                    
+                    {% if book.book_file %}
+                        <a href="{{ book.book_file.url }}" download class="download-button">
+                            Скачать книгу
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -93,7 +111,6 @@
         margin-bottom: 30px;
         align-items: flex-start;
     }
-    
     
     .book-image {
         width: 300px;
@@ -162,6 +179,9 @@
     
     .book-actions {
         margin-top: 30px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
     }
     
     .read-button {
@@ -175,10 +195,29 @@
         font-weight: bold;
         text-align: center;
         min-width: 200px;
+        transition: background-color 0.3s ease;
     }
     
     .read-button:hover {
         background-color: #45a049;
+    }
+    
+    .download-button {
+        display: inline-block;
+        padding: 15px 35px;
+        background-color: #2196F3;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        min-width: 200px;
+        transition: background-color 0.3s ease;
+    }
+    
+    .download-button:hover {
+        background-color: #1976D2;
     }
     
     .book-additional-info {
@@ -266,4 +305,6 @@
         font-style: italic;
         padding: 20px;
     }
+
+
 {% endblock %}

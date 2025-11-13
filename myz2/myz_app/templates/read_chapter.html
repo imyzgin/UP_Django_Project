@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    <title>{{ chapter.title }} - {{ book.bookName }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="reading-container">
+    <div class="reading-navigation">
+        <div class="nav-left">
+            {% if previous_chapter %}
+                <a href="{% url 'read_chapter' book.pk previous_chapter.chapter_number %}" class="nav-button prev-button">
+                    ← Глава {{ previous_chapter.chapter_number }}
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="nav-center">
+            <a href="{% url 'book_detail' book.pk %}" class="back-to-book">К описанию</a>
+            <h2>{{ book.bookName }}</h2>
+            <div class="chapter-info">
+                <span class="chapter-number">Глава {{ chapter.chapter_number }}</span>
+                <span class="chapter-title">{{ chapter.title }}</span>
+            </div>
+        </div>
+        
+        <div class="nav-right">
+            {% if next_chapter %}
+                <a href="{% url 'read_chapter' book.pk next_chapter.chapter_number %}" class="nav-button next-button">
+                    Глава {{ next_chapter.chapter_number }} →
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="chapters-dropdown">
+        <button class="dropdown-toggle">Оглавление</button>
+        <div class="dropdown-content">
+            {% for chap in all_chapters %}
+                <a href="{% url 'read_chapter' book.pk chap.chapter_number %}" 
+                   class="{% if chap.chapter_number == current_chapter_number %}current{% endif %}">
+                    Глава {{ chap.chapter_number }}: {{ chap.title }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="chapter-content">
+        {{ chapter.content|linebreaks }}
+    </div>
+
+    <div class="reading-navigation bottom-navigation">
+        <div class="nav-left">
+            {% if previous_chapter %}
+                <a href="{% url 'read_chapter' book.pk previous_chapter.chapter_number %}" class="nav-button prev-button">
+                    ← Предыдущая глава
+                </a>
+            {% endif %}
+        </div>
+        
+        <div class="nav-center">
+            <select class="chapter-selector" onchange="location = this.value;">
+                <option value="">Перейти к главе...</option>
+                {% for chap in all_chapters %}
+                    <option value="{% url 'read_chapter' book.pk chap.chapter_number %}" 
+                            {% if chap.chapter_number == current_chapter_number %}selected{% endif %}>
+                        Глава {{ chap.chapter_number }}: {{ chap.title }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="nav-right">
+            {% if next_chapter %}
+                <a href="{% url 'read_chapter' book.pk next_chapter.chapter_number %}" class="nav-button next-button">
+                    Следующая глава →
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .reading-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .reading-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 20px;
+    }
+    
+    .bottom-navigation {
+        border-top: 1px solid #eee;
+        border-bottom: none;
+        margin-top: 30px;
+        padding-top: 20px;
+    }
+    
+    .nav-center {
+        text-align: center;
+        flex-grow: 1;
+    }
+    
+    .nav-center h2 {
+        margin: 5px 0;
+        font-size: 1.2em;
+        color: #333;
+    }
+    
+    .chapter-info {
+        margin-top: 5px;
+    }
+    
+    .chapter-number {
+        font-weight: bold;
+        color: #2c5530;
+    }
+    
+    .chapter-title {
+        color: #666;
+        margin-left: 10px;
+    }
+    
+    .nav-button {
+        padding: 10px 15px;
+        background-color: #4CAF50;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 500;
+        min-width: 120px;
+        text-align: center;
+    }
+    
+    .nav-button:hover {
+        background-color: #45a049;
+    }
+    
+    .back-to-book {
+        color: #666;
+        text-decoration: none;
+        font-size: 0.9em;
+    }
+    
+    .back-to-book:hover {
+        text-decoration: underline;
+    }
+    
+    .chapters-dropdown {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 20px;
+    }
+    
+    .dropdown-toggle {
+        padding: 8px 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        background-color: white;
+        min-width: 300px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        z-index: 1;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .chapters-dropdown:hover .dropdown-content {
+        display: block;
+    }
+    
+    .dropdown-content a {
+        display: block;
+        padding: 10px 15px;
+        text-decoration: none;
+        color: #333;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .dropdown-content a:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .dropdown-content a.current {
+        background-color: #e8f5e8;
+        color: #2c5530;
+        font-weight: bold;
+    }
+    
+    .chapter-selector {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+    }
+    
+    .chapter-content {
+        line-height: 1.8;
+        font-size: 16px;
+        text-align: justify;
+        margin-bottom: 30px;
+    }
+    
+    .chapter-content p {
+        margin-bottom: 1.2em;
+    }
+</style>
+{% endblock %}

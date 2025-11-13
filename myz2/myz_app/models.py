@@ -23,11 +23,30 @@ class Book(models.Model):
     image = models.ImageField(upload_to="book_images/")
     quantity = models.PositiveIntegerField(default=0, verbose_name="Количество")
     price = models.DecimalField(default=0, max_digits=10, decimal_places=2, verbose_name="Цена")
-    book_text = models.TextField(blank=True, null=True, verbose_name="Текст книги")
     book_file = models.FileField(upload_to="book_files/", blank=True, null=True, verbose_name="Файл книги")
+
+    def get_first_chapter(self):
+        return self.chapters.first()
+    
+    def get_last_chapter(self):
+        return self.chapters.last()
 
     def __str__(self):
         return self.bookName
+    
+class Chapter(models.Model):
+    book = models.ForeignKey('Book', on_delete=models.CASCADE, related_name='chapters')
+    chapter_number = models.PositiveIntegerField(verbose_name="Номер главы")
+    title = models.CharField(max_length=200, verbose_name="Название главы")
+    content = models.TextField(verbose_name="Текст главы")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['chapter_number']
+        unique_together = ['book', 'chapter_number']
+    
+    def __str__(self):
+        return f"{self.book.bookName} - Глава {self.chapter_number}: {self.title}"
 
 class Genre(models.Model):
     genreName = models.CharField(max_length=200)
