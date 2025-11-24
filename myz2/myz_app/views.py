@@ -1,17 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import *
-from django.views.generic import ListView, DetailView
-
-from django.contrib.auth.forms import AuthenticationForm
+from django.views.generic import DetailView
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
-
 
 def render_main(request): 
     popular_books = Book.objects.filter(id__in=[1, 3])
-    
     new_books = Book.objects.filter(id__in=[2])
     
     data = {
@@ -24,9 +20,52 @@ def render_main(request):
     return render(request, 'index.html', data)
 
 class BookDetail(DetailView):
-   model = Book
-   template_name = 'book_detail.html'
-   context_object_name = "book"
+    model = Book
+    template_name = 'book_detail.html'
+    context_object_name = "book"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            try:
+                user_status = UserBookStatus.objects.get(
+                    user=self.request.user, 
+                    book=self.object
+                )
+                context['user_status'] = user_status.status
+                context['user_status_display'] = user_status.get_status_display()
+            except UserBookStatus.DoesNotExist:
+                context['user_status'] = None
+                context['user_status_display'] = None
+        return context
+    
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+            
+        self.object = self.get_object()
+        status = request.POST.get('status')
+        
+        if status == 'remove':
+            UserBookStatus.objects.filter(
+                user=request.user, 
+                book=self.object
+            ).delete()
+            messages.success(request, 'Книга удалена из ваших списков')
+        else:
+            user_status, created = UserBookStatus.objects.get_or_create(
+                user=request.user,
+                book=self.object,
+                defaults={'status': status}
+            )
+            
+            if not created:
+                user_status.status = status
+                user_status.save()
+            
+            messages.success(request, f'Статус книги обновлен на "{user_status.get_status_display()}"')
+        
+        return redirect('book_detail', pk=self.object.pk)
 
 def catalog(request):
     genres = Genre.objects.all()
@@ -88,3 +127,40 @@ def read_chapter(request, book_pk, chapter_number):
     }
     
     return render(request, 'read_chapter.html', context)
+
+@login_required
+def profile(request):
+    reading_books = UserBookStatus.objects.filter(
+        user=request.user, 
+        status='reading'
+    ).select_related('book')
+    
+    read_books = UserBookStatus.objects.filter(
+        user=request.user, 
+        status='read'
+    ).select_related('book')
+    
+    dropped_books = UserBookStatus.objects.filter(
+        user=request.user, 
+        status='dropped'
+    ).select_related('book')
+    
+    favorite_books = UserBookStatus.objects.filter(
+        user=request.user, 
+        status='favorite'
+    ).select_related('book')
+    
+    want_to_read_books = UserBookStatus.objects.filter(
+        user=request.user, 
+        status='want_to_read'
+    ).select_related('book')
+    
+    context = {
+        'reading_books': reading_books,
+        'read_books': read_books,
+        'dropped_books': dropped_books,
+        'favorite_books': favorite_books,
+        'want_to_read_books': want_to_read_books,
+    }
+    
+    return render(request, 'profile.html', context)

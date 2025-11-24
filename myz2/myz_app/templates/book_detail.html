@@ -15,11 +15,13 @@
                 </div>
             </div>
             
-            <div class="book-info-card">
+            <div class="book-info-section">
                 <div class="book-header">
                     <h1 class="book-title">{{ book.bookName }}</h1>
-                    <p class="book-author">Автор: {{ book.author }}</p>
+                    <p class="book-author">{{ book.author }}</p>
                 </div>
+                
+                <div class="divider"></div>
                 
                 <div class="book-meta">
                     <div class="meta-item">
@@ -29,14 +31,6 @@
                     <div class="meta-item">
                         <span class="meta-label">Издатель:</span>
                         <span class="meta-value">{{ book.publisher }}</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Цена:</span>
-                        <span class="meta-value">{{ book.price }} руб.</span>
-                    </div>
-                    <div class="meta-item">
-                        <span class="meta-label">Количество:</span>
-                        <span class="meta-value">{{ book.quantity }}</span>
                     </div>
                     {% if book.book_file %}
                     <div class="meta-item">
@@ -48,21 +42,86 @@
                 
                 <div class="book-actions">
                     {% if book.chapters.exists %}
-                        <a href="{% url 'read_chapter' book.id book.get_first_chapter.chapter_number %}" class="read-button">
+                        <a href="{% url 'read_chapter' book.id book.get_first_chapter.chapter_number %}" class="action-btn read-btn">
                             Читать книгу онлайн
                         </a>
                     {% else %}
-                        <a href="{% url 'read_book' book.id %}" class="read-button">
+                        <a href="{% url 'read_book' book.id %}" class="action-btn read-btn">
                             Читать книгу онлайн
                         </a>
                     {% endif %}
                     
                     {% if book.book_file %}
-                        <a href="{{ book.book_file.url }}" download class="download-button">
+                        <a href="{{ book.book_file.url }}" download class="action-btn download-btn">
                             Скачать книгу
                         </a>
                     {% endif %}
                 </div>
+
+                <!-- Блок статусов книги -->
+                {% if user.is_authenticated %}
+                <div class="book-status-actions">
+                    <h4>Добавить в мой список:</h4>
+                    <div class="status-buttons">
+                        <form method="post" action="{% url 'book_detail' book.pk %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="want_to_read">
+                            <button type="submit" class="status-btn {% if user_status == 'want_to_read' %}active{% endif %}">
+                                Хочу прочитать
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="{% url 'book_detail' book.pk %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="reading">
+                            <button type="submit" class="status-btn {% if user_status == 'reading' %}active{% endif %}">
+                                Читаю
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="{% url 'book_detail' book.pk %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="read">
+                            <button type="submit" class="status-btn {% if user_status == 'read' %}active{% endif %}">
+                                Прочитано
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="{% url 'book_detail' book.pk %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="dropped">
+                            <button type="submit" class="status-btn {% if user_status == 'dropped' %}active{% endif %}">
+                                Брошено
+                            </button>
+                        </form>
+                        
+                        <form method="post" action="{% url 'book_detail' book.pk %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="favorite">
+                            <button type="submit" class="status-btn {% if user_status == 'favorite' %}active{% endif %}">
+                                Любимое
+                            </button>
+                        </form>
+                        
+                        {% if user_status %}
+                        <form method="post" action="{% url 'book_detail' book.pk %}" class="status-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="status" value="remove">
+                            <button type="submit" class="status-btn remove-btn">
+                                Удалить из списка
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                    {% if user_status %}
+                        <p class="current-status">Текущий статус: <strong>{{ user_status_display }}</strong></p>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="login-prompt">
+                    <p><a href="{% url 'login' %}">Войдите</a>, чтобы добавлять книги в свои списки</p>
+                </div>
+                {% endif %}
             </div>
         </div>
         
@@ -107,9 +166,13 @@
     
     .book-main-info {
         display: flex;
-        gap: 30px;
-        margin-bottom: 30px;
+        gap: 40px;
+        margin-bottom: 40px;
         align-items: flex-start;
+    }
+    
+    .book-image-section {
+        flex-shrink: 0;
     }
     
     .book-image {
@@ -127,18 +190,14 @@
         display: block;
     }
     
-    .book-info-card {
+    .book-info-section {
         flex: 1;
         background: #fff;
-        padding: 25px;
-        border-radius: 8px;
-        min-height: 400px;
+        padding: 0;
     }
     
     .book-header {
-        margin-bottom: 25px;
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 15px;
+        margin-bottom: 20px;
     }
     
     .book-title {
@@ -153,6 +212,12 @@
         font-size: 18px;
         color: #666;
         margin: 0;
+    }
+    
+    .divider {
+        height: 1px;
+        background-color: #e0e0e0;
+        margin: 20px 0;
     }
     
     .book-meta {
@@ -178,56 +243,135 @@
     }
     
     .book-actions {
-        margin-top: 30px;
+        margin-bottom: 30px;
         display: flex;
         gap: 15px;
         flex-wrap: wrap;
     }
     
-    .read-button {
+    .action-btn {
         display: inline-block;
-        padding: 15px 35px;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        min-width: 180px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .read-btn {
         background-color: #4CAF50;
         color: white;
-        text-decoration: none;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        min-width: 200px;
-        transition: background-color 0.3s ease;
     }
     
-    .read-button:hover {
+    .read-btn:hover {
         background-color: #45a049;
+        color: white;
     }
     
-    .download-button {
-        display: inline-block;
-        padding: 15px 35px;
+    .download-btn {
         background-color: #2196F3;
         color: white;
-        text-decoration: none;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        min-width: 200px;
-        transition: background-color 0.3s ease;
     }
     
-    .download-button:hover {
+    .download-btn:hover {
         background-color: #1976D2;
+        color: white;
+    }
+    
+    .book-status-actions {
+        margin: 30px 0;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-left: 4px solid #4CAF50;
+    }
+    
+    .book-status-actions h4 {
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .status-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .status-form {
+        margin: 0;
+    }
+    
+    .status-btn {
+        padding: 8px 16px;
+        border: 2px solid #4CAF50;
+        background-color: white;
+        color: #4CAF50;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .status-btn:hover {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .status-btn.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+    
+    .remove-btn {
+        border-color: #dc3545;
+        color: #dc3545;
+    }
+    
+    .remove-btn:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .current-status {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .login-prompt {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 4px;
+        text-align: center;
+    }
+    
+    .login-prompt a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    
+    .login-prompt a:hover {
+        text-decoration: underline;
     }
     
     .book-additional-info {
         background: #fff;
         padding: 30px;
         border-radius: 8px;
+        text-align: center;
     }
     
     .book-description {
         margin-bottom: 30px;
+        text-align: left;
     }
     
     .book-description h3,
@@ -237,18 +381,21 @@
         margin-bottom: 15px;
         padding-bottom: 8px;
         border-bottom: 2px solid #4CAF50;
+        text-align: left;
     }
     
     .description-content {
         line-height: 1.6;
         color: #555;
         font-size: 16px;
+        text-align: left;
     }
     
     .genres-list {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
+        justify-content: center;
     }
     
     .genre-tag {
@@ -305,6 +452,5 @@
         font-style: italic;
         padding: 20px;
     }
-
-
+</style>
 {% endblock %}

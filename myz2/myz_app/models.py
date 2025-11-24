@@ -1,6 +1,4 @@
 from django.db import models
-
-from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -9,9 +7,9 @@ class Author(models.Model):
     lastName = models.CharField(max_length=200)
     dateOfBirth = models.DateField()
     dateOfDeath = models.DateField(null=True, blank=True)
+    
     def __str__(self):
         return self.firstName + ' ' + self.lastName
-    
 
 class Book(models.Model):
     bookName = models.CharField(max_length=200)
@@ -33,7 +31,7 @@ class Book(models.Model):
 
     def __str__(self):
         return self.bookName
-    
+
 class Chapter(models.Model):
     book = models.ForeignKey('Book', on_delete=models.CASCADE, related_name='chapters')
     chapter_number = models.PositiveIntegerField(verbose_name="Номер главы")
@@ -65,3 +63,25 @@ class Publisher(models.Model):
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     def __str__(self):
         return self.publisher_name
+
+class UserBookStatus(models.Model):
+    STATUS_CHOICES = [
+        ('read', 'Прочитано'),
+        ('reading', 'Читаю'),
+        ('dropped', 'Брошено'),
+        ('favorite', 'Любимые'),
+        ('want_to_read', 'Хочу прочитать'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES)
+    added_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['user', 'book'] 
+        verbose_name_plural = "User book statuses"
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.book.bookName} ({self.get_status_display()})"

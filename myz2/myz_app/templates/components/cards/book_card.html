@@ -12,12 +12,6 @@
                     {{ genre.genreName }}{% if not forloop.last %}, {% endif %}
                 {% endfor %}
             </p>
-            <p class="book-price">Цена: {{ book.price }} руб.</p>
-            <p class="book-quantity">Количество: {{ book.quantity }}</p>
-            <form action="#" method="POST" class="add-to-cart-form">
-                {% csrf_token %}
-                <button type="submit" class="add-to-cart-btn">Добавить в корзину</button>
-            </form>
         </div>
     </div>
 </a>
